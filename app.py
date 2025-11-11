@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
@@ -84,12 +85,6 @@ st.markdown(f"""
         .stColumn {{
             padding: 0 !important;
         }}
-        .loading {{
-            text-align: center;
-            color: {ELECTRIC_BLUE};
-            font-style: italic;
-            padding: 20px;
-        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -100,11 +95,13 @@ st.write("What's on your mind today? Type in something you're dreading, a frustr
 # --- INPUT ---
 user_statement = st.text_input("Enter your statement:", placeholder="e.g., I have to work through the holidays")
 
-# --- AI-POWERED REFRAME FUNCTION ---
-async def reframe_with_ai(statement):
-    """Use Claude API to generate thoughtful, contextual reframes"""
+# --- BUTTON TO GENERATE ---
+if st.button("Reframe My Mindset", type="primary") and user_statement:
     
-    prompt = f"""You are a thoughtful coach helping someone reframe a negative or draining thought into three different positive perspectives. The person said: "{statement}"
+    with st.spinner("Thinking about this from different angles..."):
+        
+        # Create the AI prompt
+        prompt = f"""You are a thoughtful coach helping someone reframe a negative or draining thought into three different positive perspectives. The person said: "{user_statement}"
 
 Please provide three distinct reframes, each 1-2 sentences:
 
@@ -126,61 +123,45 @@ IMPORTANT:
 Respond with ONLY the three reframes, separated by | like this:
 [growth reframe]|[abundance reframe]|[get-to reframe]"""
 
-    try:
-        response = await fetch("https://api.anthropic.com/v1/messages", {
-            "method": "POST",
-            "headers": {
-                "Content-Type": "application/json",
-            },
-            "body": JSON.stringify({
-                "model": "claude-sonnet-4-20250514",
-                "max_tokens": 500,
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ]
-            })
-        })
+        # Make API call using requests
+        import requests
         
-        data = await response.json()
-        reframes_text = data.content[0].text
-        
-        # Split by | to get the three reframes
-        reframes = reframes_text.split("|")
-        
-        if len(reframes) == 3:
-            return reframes[0].strip(), reframes[1].strip(), reframes[2].strip()
-        else:
-            # Fallback if format is unexpected
-            return (
-                "This experience is shaping you in ways you'll appreciate later.",
-                "There might be unexpected opportunities hidden in this situation.",
-                "You get to face this challenge - that's part of being fully alive."
+        try:
+            response = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={"Content-Type": "application/json"},
+                json={
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 500,
+                    "messages": [{"role": "user", "content": prompt}]
+                }
             )
             
-    except Exception as e:
-        st.error(f"Having trouble connecting. Please try again. ({str(e)})")
-        return None, None, None
+            if response.status_code == 200:
+                data = response.json()
+                reframes_text = data['content'][0]['text']
+                
+                # Split by | to get the three reframes
+                reframes = [r.strip() for r in reframes_text.split("|")]
+                
+                if len(reframes) == 3:
+                    growth, abundance, get_to = reframes
+                    
+                    st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
 
-# --- OUTPUT ---
-if user_statement:
-    with st.spinner("Reframing your perspective..."):
-        import asyncio
-        
-        # Run the async function
-        try:
-            growth, abundance, get_to = asyncio.run(reframe_with_ai(user_statement))
-            
-            if growth and abundance and get_to:
-                st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
-                st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
-
-                # Download option
-                reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-                st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+                    # Download option
+                    reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
+                    st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+                else:
+                    st.error("Received an unexpected response format. Please try again.")
+            else:
+                st.error(f"API request failed with status {response.status_code}. Please try again.")
+                
         except Exception as e:
-            st.error("Something went wrong. Please refresh and try again.")
+            st.error(f"Something went wrong: {str(e)}")
 
 # --- BROKER CARDS ---
 st.markdown("""
