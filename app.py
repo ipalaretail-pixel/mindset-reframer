@@ -89,27 +89,65 @@ st.markdown(f"""
 
 # --- HEADER ---
 st.markdown("<h1 style='text-align:center;'>Gratitude, Growth and Abundance<br>Reframe Your Mindset</h1>", unsafe_allow_html=True)
-st.write("Shift your perspective this holiday season. Enter a statement below and see it reframed into Growth, Abundance, and Get-to mindsets.")
+st.write("What's on your mind today? Type in something you're dreading, a frustration that's been nagging you, or just that thing you wish you didn't have to deal with. Let's see it from a different angle.")
 
 # --- INPUT ---
-user_statement = st.text_input("Enter your statement:", placeholder="e.g., I have to finish this report")
+user_statement = st.text_input("Enter your statement:", placeholder="e.g., I have to work through the holidays")
 
-# --- REFRAME FUNCTION ---
+# --- IMPROVED REFRAME FUNCTION ---
 def reframe_statement(statement):
     original = statement.strip()
-    growth = f"Finishing this task helps me learn and improve: '{original}'."
-    abundance = f"Completing this task creates new opportunities: '{original}'."
-    get_to = f"I get to do this because it benefits me: '{original}'."
-
-    if "have to" in original.lower():
-        growth = original.replace("have to", "choose to because it helps me grow")
-        abundance = original.replace("have to", "get to, which opens new possibilities")
-        get_to = original.replace("have to", "get to")
-    elif "can't" in original.lower():
-        growth = original.replace("can't", "can learn to")
-        abundance = original.replace("can't", "have opportunities to")
-        get_to = original.replace("can't", "get to try and improve")
-
+    
+    # Handle common negative patterns with smart replacements
+    statement_lower = original.lower()
+    
+    # GROWTH MINDSET - Focus on learning and improvement
+    if "have to" in statement_lower:
+        growth = original.lower().replace("have to", "choose to")
+        growth = f"I {growth} because it helps me grow and learn."
+    elif "can't" in statement_lower:
+        growth = original.lower().replace("can't", "haven't yet learned to")
+        growth = f"{growth.capitalize()}, but I'm developing this skill."
+    elif "too" in statement_lower and ("hot" in statement_lower or "cold" in statement_lower or "hard" in statement_lower or "difficult" in statement_lower):
+        growth = f"While {original.lower()}, this challenge helps me build resilience and adaptability."
+    elif any(word in statement_lower for word in ["stuck", "frustrated", "annoyed", "tired", "stressed"]):
+        growth = f"Even though {original.lower()}, I'm learning what I need to adjust and improve."
+    else:
+        growth = f"Experiencing '{original.lower()}' teaches me something valuable about myself and how I respond to circumstances."
+    
+    # ABUNDANCE MINDSET - Focus on opportunities and possibilities
+    if "have to" in statement_lower:
+        abundance = original.lower().replace("have to", "get to")
+        abundance = f"I {abundance} - this opens new possibilities for me."
+    elif "can't" in statement_lower:
+        abundance = original.lower().replace("can't", "will find another way to")
+        abundance = f"{abundance.capitalize()} - there are always multiple paths forward."
+    elif "too" in statement_lower and ("hot" in statement_lower or "cold" in statement_lower):
+        abundance = f"While {original.lower()}, I'm grateful I can experience different conditions and have options to adapt."
+    elif any(word in statement_lower for word in ["stuck", "frustrated", "annoyed", "tired", "stressed"]):
+        abundance = f"Rather than being limited by feeling that {original.lower()}, I can see this as redirecting me toward better opportunities."
+    else:
+        abundance = f"Instead of just noticing that '{original.lower()},' I recognize this situation offers me new perspectives and opportunities."
+    
+    # GET-TO MINDSET - Focus on gratitude and privilege
+    if "have to" in statement_lower:
+        get_to = original.lower().replace("have to", "get to")
+        get_to = f"I {get_to} - and I'm grateful for this opportunity."
+    elif "can't" in statement_lower:
+        get_to = original.lower().replace("can't", "will eventually be able to")
+        get_to = f"I {get_to}, and I appreciate the journey toward that goal."
+    elif "too" in statement_lower and ("hot" in statement_lower or "cold" in statement_lower):
+        get_to = f"Even though {original.lower()}, I get to experience this moment and I have the resources to be comfortable."
+    elif any(word in statement_lower for word in ["stuck", "frustrated", "annoyed", "tired", "stressed"]):
+        get_to = f"Though {original.lower()}, I get to have experiences that shape who I'm becoming."
+    else:
+        get_to = f"Noticing that '{original.lower()}' reminds me that I get to be present and aware in this moment."
+    
+    # Capitalize first letter
+    growth = growth[0].upper() + growth[1:]
+    abundance = abundance[0].upper() + abundance[1:]
+    get_to = get_to[0].upper() + get_to[1:]
+    
     return growth, abundance, get_to
 
 # --- OUTPUT ---
