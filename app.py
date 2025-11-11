@@ -1,5 +1,5 @@
 import streamlit as st
-import json
+import requests
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
@@ -98,70 +98,86 @@ user_statement = st.text_input("Enter your statement:", placeholder="e.g., I hav
 # --- BUTTON TO GENERATE ---
 if st.button("Reframe My Mindset", type="primary") and user_statement:
     
-    with st.spinner("Thinking about this from different angles..."):
-        
-        # Create the AI prompt
-        prompt = f"""You are a thoughtful coach helping someone reframe a negative or draining thought into three different positive perspectives. The person said: "{user_statement}"
+    st.info("⚠️ AI-powered reframing requires the Anthropic API which isn't available in this Streamlit environment. Using smart template-based reframing instead...")
+    
+    # Fallback to improved template system
+    import random
+    
+    original = user_statement.strip()
+    statement_lower = original.lower()
+    
+    # Smart detection and reframing
+    growth_reframes = []
+    abundance_reframes = []
+    getto_reframes = []
+    
+    # Detect patterns and create contextual reframes
+    if "have to" in statement_lower:
+        base = original.lower().replace("have to", "")
+        growth_reframes = [
+            f"Choosing to{base} helps me build discipline and commitment.",
+            f"Each time I{base}, I'm developing valuable skills.",
+            f"By taking ownership of{base}, I'm investing in my growth.",
+        ]
+        abundance_reframes = [
+            f"I get to{base} - which creates opportunities I haven't imagined yet.",
+            f"Instead of obligation, I see: I get to{base}.",
+            f"The fact that I get to{base} means possibilities are opening.",
+        ]
+        getto_reframes = [
+            f"I get to{base} - not everyone has this opportunity.",
+            f"What a privilege that I get to{base}.",
+            f"I'm grateful I get to{base}.",
+        ]
+    
+    elif "can't" in statement_lower or "cannot" in statement_lower:
+        growth_reframes = [
+            f"I haven't learned how to do this yet, but I'm on the path.",
+            f"Today {original.lower()}, tomorrow I might surprise myself.",
+            f"What feels impossible now is often tomorrow's breakthrough.",
+        ]
+        abundance_reframes = [
+            f"If one door is closed, I'm curious what other paths are available.",
+            f"This limitation might be redirecting me somewhere better.",
+            f"When {original.lower()}, it often means I need to look at different options.",
+        ]
+        getto_reframes = [
+            f"Even though {original.lower()}, I get to keep learning and trying.",
+            f"I get to have goals that challenge me, even if {original.lower()} right now.",
+            f"The journey matters: I get to work toward this, even if {original.lower()} today.",
+        ]
+    
+    else:
+        # General reframes that work for most statements
+        growth_reframes = [
+            f"Experiencing '{original}' teaches me something about resilience.",
+            f"'{original}' - and I'm learning how I respond to challenges.",
+            f"This situation helps me understand what I need and value.",
+        ]
+        abundance_reframes = [
+            f"Within '{original}' are opportunities I'm starting to see.",
+            f"What seems like '{original}' might be opening unexpected doors.",
+            f"'{original}' - and I'm curious about what else might be true here.",
+        ]
+        getto_reframes = [
+            f"I get to notice '{original}' - that's being present and aware.",
+            f"Even experiencing '{original}' is part of being fully alive.",
+            f"I get to feel and observe '{original}' in this moment.",
+        ]
+    
+    # Pick one from each
+    growth = random.choice(growth_reframes)
+    abundance = random.choice(abundance_reframes)
+    get_to = random.choice(getto_reframes)
+    
+    st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
+    st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
 
-Please provide three distinct reframes, each 1-2 sentences:
-
-1. GROWTH MINDSET: Focus on learning, development, skills gained, or personal evolution from this situation. Be specific to their statement and authentic - not generic.
-
-2. ABUNDANCE MINDSET: Focus on opportunities, possibilities, what this opens up, or alternative perspectives that reveal more options. Be specific and genuine.
-
-3. GET-TO MINDSET: Focus on gratitude, privilege, or the gift of being able to experience this. Make it feel sincere, not forced.
-
-IMPORTANT: 
-- Use their exact words and context from their statement
-- Make each reframe feel natural and conversational, not like a template
-- Vary your language - don't start every sentence the same way
-- Be authentic and human - if something genuinely sucks, acknowledge it while still reframing
-- Keep it concise - 1-2 sentences each
-- DO NOT include labels like "Growth Mindset:" in your response
-- DO NOT use quotation marks around their statement
-
-Respond with ONLY the three reframes, separated by | like this:
-[growth reframe]|[abundance reframe]|[get-to reframe]"""
-
-        # Make API call using requests
-        import requests
-        
-        try:
-            response = requests.post(
-                "https://api.anthropic.com/v1/messages",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "model": "claude-sonnet-4-20250514",
-                    "max_tokens": 500,
-                    "messages": [{"role": "user", "content": prompt}]
-                }
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                reframes_text = data['content'][0]['text']
-                
-                # Split by | to get the three reframes
-                reframes = [r.strip() for r in reframes_text.split("|")]
-                
-                if len(reframes) == 3:
-                    growth, abundance, get_to = reframes
-                    
-                    st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
-                    st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
-
-                    # Download option
-                    reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-                    st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
-                else:
-                    st.error("Received an unexpected response format. Please try again.")
-            else:
-                st.error(f"API request failed with status {response.status_code}. Please try again.")
-                
-        except Exception as e:
-            st.error(f"Something went wrong: {str(e)}")
+    # Download option
+    reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
+    st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
 
 # --- BROKER CARDS ---
 st.markdown("""
