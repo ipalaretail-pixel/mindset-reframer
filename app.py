@@ -81,7 +81,6 @@ st.markdown(f"""
             margin-bottom: 10px;
             border: 1px solid {BRONZE};
         }}
-        /* Fix Streamlit's default column padding */
         .stColumn {{
             padding: 0 !important;
         }}
@@ -125,7 +124,7 @@ if user_statement:
     reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
     st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
 
-# --- BROKER CARDS FIRST ---
+# --- BROKER CARDS ---
 st.markdown("""
     <div class='broker-grid'>
         <div class='broker-card'>
@@ -163,15 +162,19 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- TEAM SECTION BELOW BROKERS ---
+# --- TEAM SECTION ---
 st.markdown("""
     <div class='team-header'>
         <div class='team-title'>ANCHORED RETAIL TEAM</div>
     </div>
 """, unsafe_allow_html=True)
 
-# IPA Logo - Properly Centered
+# IPA Logo
 st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
 _, center_col, _ = st.columns([1, 1, 1])
 with center_col:
-    st.image("https://i.im
+    st.image("https://i.imgur.com/xG8V4fL.png", use_container_width=True)
+st.markdown("</div>", unsafe_allow_html=True)
+
+# --- FOOTER ---
+st.markdown("<div class='footer'>© 2025 Institutional Property Advisors | ipausa.com</div>", unsafe_allow_html=True)
