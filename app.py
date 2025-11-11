@@ -31,10 +31,6 @@ st.markdown(f"""
             color: {GUNMETAL};
             margin-bottom: 15px;
         }}
-        .team-logo {{
-            text-align: center;
-            margin-bottom: 20px;
-        }}
         .broker-grid {{
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -45,9 +41,9 @@ st.markdown(f"""
             border-radius: 8px;
         }}
         .broker-card {{
-            text-align: left;
+            text-align: center;
             padding: 15px;
-            border-left: 3px solid {ELECTRIC_BLUE};
+            border-bottom: 3px solid {ELECTRIC_BLUE};
         }}
         .broker-name {{
             font-size: 16px;
@@ -83,7 +79,10 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- HEADER WITH LOGO ---
-st.image("https://ipa-los-angeles.box.com/s/91939uxs96jun0p3rm7t3c97hy2isjfg", width=200)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.image("https://www.ipausa.com/wp-content/uploads/2023/06/IPA-Logo.png", width=200)
+
 st.markdown("<h1 style='text-align:center;'>Gratitude and Growth – Try Our Mindset Reframer!</h1>", unsafe_allow_html=True)
 st.write("Shift your perspective this holiday season. Enter a statement below and see it reframed into Growth, Abundance, and Get-to mindsets.")
 
@@ -120,7 +119,7 @@ if user_statement:
     reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
     st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
 
-# --- TEAM SECTION ---
+# --- TEAM SECTION (CENTERED) ---
 st.markdown("""
     <div class='team-header'>
         <div class='team-title'>ANCHORED RETAIL TEAM</div>
@@ -130,7 +129,7 @@ st.markdown("""
 # IPA Logo centered
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
-    st.image("https://ipa-los-angeles.box.com/s/91939uxs96jun0p3rm7t3c97hy2isjfg", width=150)
+    st.image("https://www.ipausa.com/wp-content/uploads/2023/06/IPA-Logo.png", width=150)
 
 st.markdown("""
     <div class='broker-grid'>
