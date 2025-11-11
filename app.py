@@ -1,7 +1,7 @@
 import streamlit as st
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Gratitude and Growth – Mindset Reframer", page_icon=None, layout="centered")
+st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
 
 # --- BRAND COLORS ---
 GUNMETAL = "#333F48"
@@ -89,7 +89,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
-st.markdown("<h1 style='text-align:center;'>Gratitude and Growth – Try Our Mindset Reframer!</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;'>Gratitude, Growth and Abundance<br>Reframe Your Mindset</h1>", unsafe_allow_html=True)
 st.write("Shift your perspective this holiday season. Enter a statement below and see it reframed into Growth, Abundance, and Get-to mindsets.")
 
 # --- INPUT ---
@@ -174,8 +174,4 @@ st.markdown("""
 st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
 _, center_col, _ = st.columns([1, 1, 1])
 with center_col:
-    st.image("https://i.imgur.com/xG8V4fL.png", use_container_width=True)
-st.markdown("</div>", unsafe_allow_html=True)
-
-# --- FOOTER ---
-st.markdown("<div class='footer'>© 2025 Institutional Property Advisors | ipausa.com</div>", unsafe_allow_html=True)
+    st.image("https://i.im
