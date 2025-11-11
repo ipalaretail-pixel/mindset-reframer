@@ -31,6 +31,12 @@ st.markdown(f"""
             color: {GUNMETAL};
             margin-bottom: 15px;
         }}
+        .logo-container {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }}
         .broker-grid {{
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -75,14 +81,14 @@ st.markdown(f"""
             margin-bottom: 10px;
             border: 1px solid {BRONZE};
         }}
+        /* Fix Streamlit's default column padding */
+        .stColumn {{
+            padding: 0 !important;
+        }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- HEADER WITH LOGO ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.image("https://i.imgur.com/xG8V4fL.png", width=200)
-
+# --- HEADER ---
 st.markdown("<h1 style='text-align:center;'>Gratitude and Growth – Try Our Mindset Reframer!</h1>", unsafe_allow_html=True)
 st.write("Shift your perspective this holiday season. Enter a statement below and see it reframed into Growth, Abundance, and Get-to mindsets.")
 
@@ -126,10 +132,12 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# IPA Logo centered
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
-    st.image("https://i.imgur.com/xG8V4fL.png", width=150)
+# IPA Logo - Properly Centered
+st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
+_, center_col, _ = st.columns([1, 1, 1])
+with center_col:
+    st.image("https://i.imgur.com/xG8V4fL.png", use_container_width=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
     <div class='broker-grid'>
