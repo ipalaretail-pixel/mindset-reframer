@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
 import openai
-openai.api_key = st.secrets["openai"]["api_key"]
+import random
 
-# Lock the model to GPT-3.5
+# --- OPENAI SETUP ---
+openai.api_key = st.secrets["openai"]["api_key"]
 model = "gpt-3.5-turbo"
 assert model == "gpt-3.5-turbo", "Wrong model selected!"
 
@@ -18,80 +19,23 @@ CREAMTONE = "#F5F1E5"
 
 # --- CUSTOM STYLING ---
 st.markdown(f"""
-    <style>
-        .main {{
-            background-color: {CREAMTONE};
-            font-family: 'Montserrat', sans-serif;
-        }}
-        h1, h2, h3 {{
-            color: {GUNMETAL};
-            font-family: 'Montserrat', sans-serif;
-        }}
-        .team-header {{
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 10px;
-        }}
-        .team-title {{
-            font-size: 24px;
-            font-weight: 700;
-            color: {GUNMETAL};
-            margin-bottom: 15px;
-        }}
-        .logo-container {{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }}
-        .broker-grid {{
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin: 30px 0;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-        }}
-        .broker-card {{
-            text-align: center;
-            padding: 15px;
-            border-bottom: 3px solid {ELECTRIC_BLUE};
-        }}
-        .broker-name {{
-            font-size: 16px;
-            font-weight: 700;
-            color: {GUNMETAL};
-            margin-bottom: 3px;
-        }}
-        .broker-title {{
-            font-size: 12px;
-            color: {ELECTRIC_BLUE};
-            font-style: italic;
-            margin-bottom: 8px;
-        }}
-        .broker-contact {{
-            font-size: 11px;
-            color: {GUNMETAL};
-            line-height: 1.6;
-        }}
-        .footer {{
-            text-align: center;
-            font-size: 14px;
-            color: {GUNMETAL};
-            margin-top: 50px;
-        }}
-        .reframe-box {{
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid {BRONZE};
-        }}
-        .stColumn {{
-            padding: 0 !important;
-        }}
-    </style>
+<style>
+.main {{
+    background-color: {CREAMTONE};
+    font-family: 'Montserrat', sans-serif;
+}}
+h1, h2, h3 {{
+    color: {GUNMETAL};
+    font-family: 'Montserrat', sans-serif;
+}}
+.reframe-box {{
+    background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid {BRONZE};
+}}
+</style>
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
@@ -103,139 +47,84 @@ user_statement = st.text_input("Enter your statement:", placeholder="e.g., I hav
 
 # --- BUTTON TO GENERATE ---
 if st.button("Reframe My Mindset", type="primary") and user_statement:
-    
-    st.info("⚠️ AI-powered reframing requires the Anthropic API which isn't available in this Streamlit environment. Using smart template-based reframing instead...")
-    
-    # Fallback to improved template system
-    import random
-    
-    original = user_statement.strip()
-    statement_lower = original.lower()
-    
-    # Smart detection and reframing
-    growth_reframes = []
-    abundance_reframes = []
-    getto_reframes = []
-    
-    # Detect patterns and create contextual reframes
-    if "have to" in statement_lower:
-        base = original.lower().replace("have to", "")
-        growth_reframes = [
-            f"Choosing to{base} helps me build discipline and commitment.",
-            f"Each time I{base}, I'm developing valuable skills.",
-            f"By taking ownership of{base}, I'm investing in my growth.",
-        ]
-        abundance_reframes = [
-            f"I get to{base} - which creates opportunities I haven't imagined yet.",
-            f"Instead of obligation, I see: I get to{base}.",
-            f"The fact that I get to{base} means possibilities are opening.",
-        ]
-        getto_reframes = [
-            f"I get to{base} - not everyone has this opportunity.",
-            f"What a privilege that I get to{base}.",
-            f"I'm grateful I get to{base}.",
-        ]
-    
-    elif "can't" in statement_lower or "cannot" in statement_lower:
-        growth_reframes = [
-            f"I haven't learned how to do this yet, but I'm on the path.",
-            f"Today {original.lower()}, tomorrow I might surprise myself.",
-            f"What feels impossible now is often tomorrow's breakthrough.",
-        ]
-        abundance_reframes = [
-            f"If one door is closed, I'm curious what other paths are available.",
-            f"This limitation might be redirecting me somewhere better.",
-            f"When {original.lower()}, it often means I need to look at different options.",
-        ]
-        getto_reframes = [
-            f"Even though {original.lower()}, I get to keep learning and trying.",
-            f"I get to have goals that challenge me, even if {original.lower()} right now.",
-            f"The journey matters: I get to work toward this, even if {original.lower()} today.",
-        ]
-    
-    else:
-        # General reframes that work for most statements
-        growth_reframes = [
-            f"Experiencing '{original}' teaches me something about resilience.",
-            f"'{original}' - and I'm learning how I respond to challenges.",
-            f"This situation helps me understand what I need and value.",
-        ]
-        abundance_reframes = [
-            f"Within '{original}' are opportunities I'm starting to see.",
-            f"What seems like '{original}' might be opening unexpected doors.",
-            f"'{original}' - and I'm curious about what else might be true here.",
-        ]
-        getto_reframes = [
-            f"I get to notice '{original}' - that's being present and aware.",
-            f"Even experiencing '{original}' is part of being fully alive.",
-            f"I get to feel and observe '{original}' in this moment.",
-        ]
-    
-    # Pick one from each
-    growth = random.choice(growth_reframes)
-    abundance = random.choice(abundance_reframes)
-    get_to = random.choice(getto_reframes)
-    
-    st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
-    st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
+    try:
+        # Try AI-powered reframing
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a mindset coach. Reframe the user's statement into Growth, Abundance, and Get-to perspectives. Provide 3 short reframes for each mindset."},
+                {"role": "user", "content": user_statement}
+            ],
+            max_tokens=400
+        )
+        ai_text = response.choices[0].message["content"]
+        st.markdown("### AI-Powered Reframe")
+        st.write(ai_text)
 
-    # Download option
-    reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-    st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+    except Exception:
+        st.info("⚠️ Using template-based reframing instead...")
+        
+        # --- TEMPLATE FALLBACK ---
+        original = user_statement.strip()
+        statement_lower = original.lower()
 
-# --- BROKER CARDS ---
-st.markdown("""
-    <div class='broker-grid'>
-        <div class='broker-card'>
-            <div class='broker-name'>TOM LAGOS</div>
-            <div class='broker-title'>Executive Director</div>
-            <div class='broker-contact'>
-                C: 310.722.8939<br>
-                tlagos@ipausa.com
-            </div>
-        </div>
-        <div class='broker-card'>
-            <div class='broker-name'>PATRICK TOOMEY</div>
-            <div class='broker-title'>Executive Director</div>
-            <div class='broker-contact'>
-                C: 310.403.4984<br>
-                ptoomey@ipausa.com
-            </div>
-        </div>
-        <div class='broker-card'>
-            <div class='broker-name'>JOSE CARRAZANA</div>
-            <div class='broker-title'>Director</div>
-            <div class='broker-contact'>
-                C: 786.973.8929<br>
-                jcarrazana@ipausa.com
-            </div>
-        </div>
-        <div class='broker-card'>
-            <div class='broker-name'>ENRIQUE WONG</div>
-            <div class='broker-title'>First Vice President</div>
-            <div class='broker-contact'>
-                C: 818.266.5483<br>
-                enrique.wong@marcusmillichap.com
-            </div>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+        # Enhanced patterns
+        patterns = {
+            "have to": "Choosing to",
+            "can't": "I haven't learned yet",
+            "hate": "This teaches me resilience",
+            "wish I didn't": "This is an opportunity to grow",
+            "stuck with": "This helps me practice patience"
+        }
 
-# --- TEAM SECTION ---
-st.markdown("""
-    <div class='team-header'>
-        <div class='team-title'>ANCHORED RETAIL TEAM</div>
-    </div>
-""", unsafe_allow_html=True)
+        growth_reframes, abundance_reframes, getto_reframes = [], [], []
 
-# IPA Logo
-st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
-_, center_col, _ = st.columns([1, 1, 1])
-with center_col:
-    st.image("https://i.imgur.com/xG8V4fL.png", use_container_width=True)
-st.markdown("</div>", unsafe_allow_html=True)
+        # Detect patterns
+        if "have to" in statement_lower:
+            base = original.lower().replace("have to", "")
+            growth_reframes = [
+                f"Choosing to{base} helps me build discipline.",
+                f"Each time I{base}, I'm developing valuable skills.",
+                f"By taking ownership of{base}, I'm investing in my growth."
+            ]
+            abundance_reframes = [
+                f"I get to{base} – which creates opportunities I haven't imagined yet.",
+                f"Instead of obligation, I see: I get to{base}.",
+                f"The fact that I get to{base} means possibilities are opening."
+            ]
+            getto_reframes = [
+                f"I get to{base} – not everyone has this opportunity.",
+                f"What a privilege that I get to{base}.",
+                f"I'm grateful I get to{base}."
+            ]
+        else:
+            # General reframes
+            growth_reframes = [
+                f"Experiencing '{original}' teaches me resilience.",
+                f"'{original}' – and I'm learning how I respond to challenges.",
+                f"This situation helps me understand what I need and value."
+            ]
+            abundance_reframes = [
+                f"Within '{original}' are opportunities I'm starting to see.",
+                f"What seems like '{original}' might be opening unexpected doors.",
+                f"'{original}' – and I'm curious about what else might be true here."
+            ]
+            getto_reframes = [
+                f"I get to notice '{original}' – that's being present and aware.",
+                f"Even experiencing '{original}' is part of being fully alive.",
+                f"I get to feel and observe '{original}' in this moment."
+            ]
 
-# --- FOOTER ---
-st.markdown("<div class='footer'>© 2025 Institutional Property Advisors | ipausa.com</div>", unsafe_allow_html=True)
+        # Pick random reframes
+        growth = random.choice(growth_reframes)
+        abundance = random.choice(abundance_reframes)
+        get_to = random.choice(getto_reframes)
+
+        st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
+        st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
+
+        # Download option
+        reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
+        st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
