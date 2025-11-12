@@ -382,5 +382,3 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown(
     "<div class='footer'>© 2025 Institutional Property Advisors<br>ipausa.com</div>", 
     unsafe_allow_html=True
-)
-```
