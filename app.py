@@ -1,12 +1,5 @@
 import streamlit as st
-import requests
 import openai
-import random
-
-# --- OPENAI SETUP ---
-openai.api_key = st.secrets["openai"]["api_key"]
-model = "gpt-3.5-turbo"
-assert model == "gpt-3.5-turbo", "Wrong model selected!"
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
@@ -19,77 +12,95 @@ CREAMTONE = "#F5F1E5"
 
 # --- CUSTOM STYLING ---
 st.markdown(f"""
-<style>
-.main {{
-    background-color: {CREAMTONE};
-    font-family: 'Montserrat', sans-serif;
-}}
-h1, h2, h3 {{
-    color: {GUNMETAL};
-    font-family: 'Montserrat', sans-serif;
-}}
-.team-header {{
-    text-align: center;
-    margin-top: 30px;
-    margin-bottom: 10px;
-}}
-.team-title {{
-    font-size: 24px;
-    font-weight: 700;
-    color: {GUNMETAL};
-    margin-bottom: 15px;
-}}
-.logo-container {{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-}}
-.broker-grid {{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    margin: 30px 0;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-}}
-.broker-card {{
-    text-align: center;
-    padding: 15px;
-    border-bottom: 3px solid {ELECTRIC_BLUE};
-}}
-.broker-name {{
-    font-size: 16px;
-    font-weight: 700;
-    color: {GUNMETAL};
-    margin-bottom: 3px;
-}}
-.broker-title {{
-    font-size: 12px;
-    color: {ELECTRIC_BLUE};
-    font-style: italic;
-    margin-bottom: 8px;
-}}
-.broker-contact {{
-    font-size: 11px;
-    color: {GUNMETAL};
-    line-height: 1.6;
-}}
-.footer {{
-    text-align: center;
-    font-size: 14px;
-    color: {GUNMETAL};
-    margin-top: 50px;
-}}
-.reframe-box {{
-    background-color: white;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: 1px solid {BRONZE};
-}}
-</style>
+    <style>
+        .main {{
+            background-color: {CREAMTONE};
+            font-family: 'Montserrat', sans-serif;
+        }}
+        h1, h2, h3 {{
+            color: {GUNMETAL};
+            font-family: 'Montserrat', sans-serif;
+        }}
+        
+        /* IPA BRANDED BUTTON */
+        .stButton > button {{
+            background-color: {ELECTRIC_BLUE} !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 2rem !important;
+            font-weight: 600 !important;
+            border-radius: 4px !important;
+        }}
+        .stButton > button:hover {{
+            background-color: {GUNMETAL} !important;
+            color: white !important;
+        }}
+        
+        .team-header {{
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }}
+        .team-title {{
+            font-size: 24px;
+            font-weight: 700;
+            color: {GUNMETAL};
+            margin-bottom: 15px;
+        }}
+        .logo-container {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }}
+        .broker-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+        }}
+        .broker-card {{
+            text-align: center;
+            padding: 15px;
+            border-bottom: 3px solid {ELECTRIC_BLUE};
+        }}
+        .broker-name {{
+            font-size: 16px;
+            font-weight: 700;
+            color: {GUNMETAL};
+            margin-bottom: 3px;
+        }}
+        .broker-title {{
+            font-size: 12px;
+            color: {ELECTRIC_BLUE};
+            font-style: italic;
+            margin-bottom: 8px;
+        }}
+        .broker-contact {{
+            font-size: 11px;
+            color: {GUNMETAL};
+            line-height: 1.6;
+        }}
+        .footer {{
+            text-align: center;
+            font-size: 14px;
+            color: {GUNMETAL};
+            margin-top: 50px;
+        }}
+        .reframe-box {{
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid {BRONZE};
+        }}
+        .stColumn {{
+            padding: 0 !important;
+        }}
+    </style>
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
@@ -101,118 +112,120 @@ user_statement = st.text_input("Enter your statement:", placeholder="e.g., I hav
 
 # --- BUTTON TO GENERATE ---
 if st.button("Reframe My Mindset", type="primary") and user_statement:
-    try:
-        # AI-powered reframing
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are a mindset coach. Reframe the user's statement into Growth, Abundance, and Get-to perspectives. Provide 3 short reframes for each mindset."},
-                {"role": "user", "content": user_statement}
-            ],
-            max_tokens=400
-        )
-        ai_text = response.choices[0].message["content"]
-        st.markdown("### AI-Powered Reframe")
-        st.write(ai_text)
-
-    except Exception:
-        st.info("⚠️ Using template-based reframing instead...")
+    
+    with st.spinner("Thinking about this from different angles..."):
         
-        # --- TEMPLATE FALLBACK ---
-        original = user_statement.strip()
-        statement_lower = original.lower()
+        # Get OpenAI API key from secrets
+        try:
+            openai.api_key = st.secrets["OPENAI_API_KEY"]
+        except:
+            st.error("⚠️ API key not found. Please add your OpenAI API key to Streamlit secrets.")
+            st.stop()
+        
+        # Create the AI prompt
+        prompt = f"""You are a thoughtful coach helping someone reframe a negative or draining thought into three different positive perspectives. The person said: "{user_statement}"
 
-        growth_reframes, abundance_reframes, getto_reframes = [], [], []
+Please provide three distinct reframes, each 1-2 sentences:
 
-        if "have to" in statement_lower:
-            base = original.lower().replace("have to", "")
-            growth_reframes = [
-                f"Choosing to{base} helps me build discipline.",
-                f"Each time I{base}, I'm developing valuable skills.",
-                f"By taking ownership of{base}, I'm investing in my growth."
-            ]
-            abundance_reframes = [
-                f"I get to{base} – which creates opportunities I haven't imagined yet.",
-                f"Instead of obligation, I see: I get to{base}.",
-                f"The fact that I get to{base} means possibilities are opening."
-            ]
-            getto_reframes = [
-                f"I get to{base} – not everyone has this opportunity.",
-                f"What a privilege that I get to{base}.",
-                f"I'm grateful I get to{base}."
-            ]
-        else:
-            growth_reframes = [
-                f"Experiencing '{original}' teaches me resilience.",
-                f"'{original}' – and I'm learning how I respond to challenges.",
-                f"This situation helps me understand what I need and value."
-            ]
-            abundance_reframes = [
-                f"Within '{original}' are opportunities I'm starting to see.",
-                f"What seems like '{original}' might be opening unexpected doors.",
-                f"'{original}' – and I'm curious about what else might be true here."
-            ]
-            getto_reframes = [
-                f"I get to notice '{original}' – that's being present and aware.",
-                f"Even experiencing '{original}' is part of being fully alive.",
-                f"I get to feel and observe '{original}' in this moment."
-            ]
+1. GROWTH MINDSET: Focus on learning, development, skills gained, or personal evolution from this situation. Be specific to their statement and authentic - not generic.
 
-        growth = random.choice(growth_reframes)
-        abundance = random.choice(abundance_reframes)
-        get_to = random.choice(getto_reframes)
+2. ABUNDANCE MINDSET: Focus on opportunities, possibilities, what this opens up, or alternative perspectives that reveal more options. Be specific and genuine.
 
-        st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
-        st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
+3. GET-TO MINDSET: Focus on gratitude, privilege, or the gift of being able to experience this. Make it feel sincere, not forced.
 
-        reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-        st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+IMPORTANT: 
+- Use their exact words and context from their statement
+- Make each reframe feel natural and conversational, not like a template
+- Vary your language - don't start every sentence the same way
+- Be authentic and human - if something genuinely sucks, acknowledge it while still reframing
+- Keep it concise - 1-2 sentences each
+- DO NOT include labels like "Growth Mindset:" in your response
+- DO NOT use quotation marks around their statement
+
+Respond with ONLY the three reframes, separated by | like this:
+[growth reframe]|[abundance reframe]|[get-to reframe]"""
+
+        try:
+            # Call OpenAI API
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # or "gpt-3.5-turbo" for cheaper option
+                messages=[
+                    {"role": "system", "content": "You are a thoughtful mindset coach who helps people reframe negative thoughts."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500,
+                temperature=0.7
+            )
+            
+            reframes_text = response.choices[0].message.content
+            
+            # Split by | to get the three reframes
+            reframes = [r.strip() for r in reframes_text.split("|")]
+            
+            if len(reframes) >= 3:
+                growth = reframes[0]
+                abundance = reframes[1]
+                get_to = reframes[2]
+                
+                st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
+                st.markdown(f"<div class='reframe-box'><b>Growth Mindset:</b> {growth}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='reframe-box'><b>Abundance Mindset:</b> {abundance}</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
+
+                # Download option
+                reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
+                st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+            else:
+                st.error("Received an unexpected response format. Please try again.")
+                
+        except Exception as e:
+            st.error(f"Something went wrong: {str(e)}")
+            st.info("⚠️ Using template-based reframing instead...")
+            # Add your fallback template code here if needed
 
 # --- BROKER CARDS ---
 st.markdown("""
-<div class='broker-grid'>
-<div class='broker-card'>
-<div class='broker-name'>TOM LAGOS</div>
-<div class='broker-title'>Executive Director</div>
-<div class='broker-contact'>
-C: 310.722.8939<br>
-tlagos@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>PATRICK TOOMEY</div>
-<div class='broker-title'>Executive Director</div>
-<div class='broker-contact'>
-C: 310.403.4984<br>
-ptoomey@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>JOSE CARRAZANA</div>
-<div class='broker-title'>Director</div>
-<div class='broker-contact'>
-C: 786.973.8929<br>
-jcarrazana@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>ENRIQUE WONG</div>
-<div class='broker-title'>First Vice President</div>
-<div class='broker-contact'>
-C: 818.266.5483<br>
-enrique.wong@marcusmillichap.com
-</div>
-</div>
-</div>
+    <div class='broker-grid'>
+        <div class='broker-card'>
+            <div class='broker-name'>TOM LAGOS</div>
+            <div class='broker-title'>Executive Director</div>
+            <div class='broker-contact'>
+                C: 310.722.8939<br>
+                tlagos@ipausa.com
+            </div>
+        </div>
+        <div class='broker-card'>
+            <div class='broker-name'>PATRICK TOOMEY</div>
+            <div class='broker-title'>Executive Director</div>
+            <div class='broker-contact'>
+                C: 310.403.4984<br>
+                ptoomey@ipausa.com
+            </div>
+        </div>
+        <div class='broker-card'>
+            <div class='broker-name'>JOSE CARRAZANA</div>
+            <div class='broker-title'>Director</div>
+            <div class='broker-contact'>
+                C: 786.973.8929<br>
+                jcarrazana@ipausa.com
+            </div>
+        </div>
+        <div class='broker-card'>
+            <div class='broker-name'>ENRIQUE WONG</div>
+            <div class='broker-title'>First Vice President</div>
+            <div class='broker-contact'>
+                C: 818.266.5483<br>
+                enrique.wong@marcusmillichap.com
+            </div>
+        </div>
+    </div>
 """, unsafe_allow_html=True)
 
 # --- TEAM SECTION ---
 st.markdown("""
-<div class='team-header'>
-<div class='team-title'>ANCHORED RETAIL TEAM</div>
-</div>
+    <div class='team-header'>
+        <div class='team-title'>ANCHORED RETAIL TEAM</div>
+    </div>
 """, unsafe_allow_html=True)
 
 # IPA Logo
@@ -223,4 +236,4 @@ with center_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # --- FOOTER ---
-st.markdown("<div class='footer'>© 2025 Institutional Property Advisors<br>ipausa.com</div>", unsafe_allow_html=True)
+st.markdown("<div class='footer'>© 2025 Institutional Property Advisors | ipausa.com</div>", unsafe_allow_html=True)
