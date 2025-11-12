@@ -1,15 +1,17 @@
 import streamlit as st
-import requests
 import openai
 import random
 
 # --- OPENAI SETUP ---
-openai.api_key = st.secrets["openai"]["api_key"]
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 model = "gpt-3.5-turbo"
-assert model == "gpt-3.5-turbo", "Wrong model selected!"
 
 # --- PAGE CONFIG ---
-st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
+st.set_page_config(
+    page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", 
+    page_icon=None, 
+    layout="centered"
+)
 
 # --- BRAND COLORS ---
 GUNMETAL = "#333F48"
@@ -24,16 +26,14 @@ st.markdown(f"""
     background-color: {CREAMTONE};
     font-family: 'Montserrat', sans-serif;
 }}
+
 h1, h2, h3 {{
     color: {GUNMETAL};
     font-family: 'Montserrat', sans-serif;
 }}
 
-/* IPA BRANDED BUTTON - CENTERED */
-div.stButton {{
-    text-align: center;
-}}
-div.stButton > button {{
+/* IPA BRANDED BUTTON */
+div[data-testid="stButton"] > button {{
     background-color: {ELECTRIC_BLUE} !important;
     color: white !important;
     border: none !important;
@@ -41,8 +41,10 @@ div.stButton > button {{
     font-weight: 600 !important;
     border-radius: 4px !important;
     font-size: 16px !important;
+    width: 100%;
 }}
-div.stButton > button:hover {{
+
+div[data-testid="stButton"] > button:hover {{
     background-color: {GUNMETAL} !important;
     color: white !important;
 }}
@@ -52,18 +54,21 @@ div.stButton > button:hover {{
     margin-top: 30px;
     margin-bottom: 10px;
 }}
+
 .team-title {{
     font-size: 24px;
     font-weight: 700;
     color: {GUNMETAL};
     margin-bottom: 15px;
 }}
+
 .logo-container {{
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 20px;
 }}
+
 .broker-grid {{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -73,34 +78,40 @@ div.stButton > button:hover {{
     background-color: white;
     border-radius: 8px;
 }}
+
 .broker-card {{
     text-align: center;
     padding: 15px;
     border-bottom: 3px solid {ELECTRIC_BLUE};
 }}
+
 .broker-name {{
     font-size: 16px;
     font-weight: 700;
     color: {GUNMETAL};
     margin-bottom: 3px;
 }}
+
 .broker-title {{
     font-size: 12px;
     color: {ELECTRIC_BLUE};
     font-style: italic;
     margin-bottom: 8px;
 }}
+
 .broker-contact {{
     font-size: 11px;
     color: {GUNMETAL};
     line-height: 1.6;
 }}
+
 .footer {{
     text-align: center;
     font-size: 14px;
     color: {GUNMETAL};
     margin-top: 50px;
 }}
+
 .reframe-box {{
     background-color: white;
     border-radius: 8px;
@@ -112,14 +123,28 @@ div.stButton > button:hover {{
 """, unsafe_allow_html=True)
 
 # --- HEADER ---
-st.markdown("<h1 style='text-align:center;'>Gratitude, Growth and Abundance<br>Reframe Your Mindset</h1>", unsafe_allow_html=True)
-st.write("What's on your mind today? Type in something you're dreading, a frustration that's been nagging you, or just that thing you wish you didn't have to deal with. Let's see it from a different angle.")
+st.markdown(
+    "<h1 style='text-align:center;'>Gratitude, Growth and Abundance<br>Reframe Your Mindset</h1>", 
+    unsafe_allow_html=True
+)
+st.write(
+    "What's on your mind today? Type in something you're dreading, a frustration that's been nagging you, "
+    "or just that thing you wish you didn't have to deal with. Let's see it from a different angle."
+)
 
 # --- INPUT ---
-user_statement = st.text_input("Enter your statement:", placeholder="e.g., I have to work through the holidays")
+user_statement = st.text_input(
+    "Enter your statement:", 
+    placeholder="e.g., I have to work through the holidays"
+)
 
-# --- BUTTON TO GENERATE ---
-if st.button("Reframe My Mindset", type="primary") and user_statement:
+# --- CENTERED BUTTON ---
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    generate_button = st.button("Reframe My Mindset", type="primary", use_container_width=True)
+
+# --- GENERATE REFRAMES ---
+if generate_button and user_statement:
     
     with st.spinner("Thinking about this from different angles..."):
         
@@ -147,11 +172,14 @@ IMPORTANT:
 Respond with ONLY the three reframes, separated by | like this:
 [growth reframe]|[abundance reframe]|[get-to reframe]"""
 
-            # AI-powered reframing
+            # Call OpenAI API
             response = openai.ChatCompletion.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are a thoughtful mindset coach who helps people reframe negative thoughts into growth, abundance, and gratitude perspectives."},
+                    {
+                        "role": "system", 
+                        "content": "You are a thoughtful mindset coach who helps people reframe negative thoughts into growth, abundance, and gratitude perspectives."
+                    },
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=500,
@@ -175,31 +203,37 @@ Respond with ONLY the three reframes, separated by | like this:
 
                 # Download option
                 reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-                st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+                st.download_button(
+                    "Download Your Reframes", 
+                    reframed_text, 
+                    file_name="mindset_reframes.txt"
+                )
             else:
                 # If format is unexpected, show what we got
                 st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
                 st.markdown(f"<div class='reframe-box'>{ai_text}</div>", unsafe_allow_html=True)
 
         except Exception as e:
-            st.info("⚠️ Using template-based reframing instead...")
+            st.warning("⚠️ AI service temporarily unavailable. Using smart template reframing...")
             
             # --- TEMPLATE FALLBACK ---
             original = user_statement.strip()
             statement_lower = original.lower()
 
-            growth_reframes, abundance_reframes, getto_reframes = [], [], []
+            growth_reframes = []
+            abundance_reframes = []
+            getto_reframes = []
 
             if "have to" in statement_lower:
                 base = original.lower().replace("have to", "")
                 growth_reframes = [
-                    f"Choosing to{base} helps me build discipline.",
+                    f"Choosing to{base} helps me build discipline and commitment.",
                     f"Each time I{base}, I'm developing valuable skills.",
                     f"By taking ownership of{base}, I'm investing in my growth."
                 ]
                 abundance_reframes = [
                     f"I get to{base} – which creates opportunities I haven't imagined yet.",
-                    f"Instead of obligation, I see: I get to{base}.",
+                    f"Instead of obligation, I see opportunity: I get to{base}.",
                     f"The fact that I get to{base} means possibilities are opening."
                 ]
                 getto_reframes = [
@@ -207,9 +241,26 @@ Respond with ONLY the three reframes, separated by | like this:
                     f"What a privilege that I get to{base}.",
                     f"I'm grateful I get to{base}."
                 ]
-            else:
+            elif "can't" in statement_lower or "cannot" in statement_lower:
                 growth_reframes = [
-                    f"Experiencing '{original}' teaches me resilience.",
+                    f"I haven't learned how to do this yet, but I'm on the path.",
+                    f"Today {original.lower()}, tomorrow I might surprise myself.",
+                    f"What feels impossible now is often tomorrow's breakthrough."
+                ]
+                abundance_reframes = [
+                    f"If one door is closed, I'm curious what other paths are available.",
+                    f"This limitation might be redirecting me somewhere better.",
+                    f"When {original.lower()}, it often means I need to look at different options."
+                ]
+                getto_reframes = [
+                    f"Even though {original.lower()}, I get to keep learning and trying.",
+                    f"I get to have goals that challenge me, even if {original.lower()} right now.",
+                    f"The journey matters: I get to work toward this, even if {original.lower()} today."
+                ]
+            else:
+                # General reframes
+                growth_reframes = [
+                    f"Experiencing '{original}' teaches me something about resilience.",
                     f"'{original}' – and I'm learning how I respond to challenges.",
                     f"This situation helps me understand what I need and value."
                 ]
@@ -234,54 +285,58 @@ Respond with ONLY the three reframes, separated by | like this:
             st.markdown(f"<div class='reframe-box'><b>Get-to Mindset:</b> {get_to}</div>", unsafe_allow_html=True)
 
             reframed_text = f"Growth Mindset: {growth}\nAbundance Mindset: {abundance}\nGet-to Mindset: {get_to}"
-            st.download_button("Download Your Reframes", reframed_text, file_name="mindset_reframes.txt")
+            st.download_button(
+                "Download Your Reframes", 
+                reframed_text, 
+                file_name="mindset_reframes.txt"
+            )
 
 # --- BROKER CARDS ---
 st.markdown("""
 <div class='broker-grid'>
-<div class='broker-card'>
-<div class='broker-name'>TOM LAGOS</div>
-<div class='broker-title'>Executive Director</div>
-<div class='broker-contact'>
-C: 310.722.8939<br>
-tlagos@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>PATRICK TOOMEY</div>
-<div class='broker-title'>Executive Director</div>
-<div class='broker-contact'>
-C: 310.403.4984<br>
-ptoomey@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>JOSE CARRAZANA</div>
-<div class='broker-title'>Director</div>
-<div class='broker-contact'>
-C: 786.973.8929<br>
-jcarrazana@ipausa.com
-</div>
-</div>
-<div class='broker-card'>
-<div class='broker-name'>ENRIQUE WONG</div>
-<div class='broker-title'>First Vice President</div>
-<div class='broker-contact'>
-C: 818.266.5483<br>
-enrique.wong@marcusmillichap.com
-</div>
-</div>
+    <div class='broker-card'>
+        <div class='broker-name'>TOM LAGOS</div>
+        <div class='broker-title'>Executive Director</div>
+        <div class='broker-contact'>
+            C: 310.722.8939<br>
+            tlagos@ipausa.com
+        </div>
+    </div>
+    <div class='broker-card'>
+        <div class='broker-name'>PATRICK TOOMEY</div>
+        <div class='broker-title'>Executive Director</div>
+        <div class='broker-contact'>
+            C: 310.403.4984<br>
+            ptoomey@ipausa.com
+        </div>
+    </div>
+    <div class='broker-card'>
+        <div class='broker-name'>JOSE CARRAZANA</div>
+        <div class='broker-title'>Director</div>
+        <div class='broker-contact'>
+            C: 786.973.8929<br>
+            jcarrazana@ipausa.com
+        </div>
+    </div>
+    <div class='broker-card'>
+        <div class='broker-name'>ENRIQUE WONG</div>
+        <div class='broker-title'>First Vice President</div>
+        <div class='broker-contact'>
+            C: 818.266.5483<br>
+            enrique.wong@marcusmillichap.com
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 # --- TEAM SECTION ---
 st.markdown("""
 <div class='team-header'>
-<div class='team-title'>ANCHORED RETAIL TEAM</div>
+    <div class='team-title'>ANCHORED RETAIL TEAM</div>
 </div>
 """, unsafe_allow_html=True)
 
-# IPA Logo
+# --- IPA LOGO ---
 st.markdown("<div class='logo-container'>", unsafe_allow_html=True)
 _, center_col, _ = st.columns([1, 1, 1])
 with center_col:
@@ -289,4 +344,7 @@ with center_col:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # --- FOOTER ---
-st.markdown("<div class='footer'>© 2025 Institutional Property Advisors<br>ipausa.com</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='footer'>© 2025 Institutional Property Advisors<br>ipausa.com</div>", 
+    unsafe_allow_html=True
+)
