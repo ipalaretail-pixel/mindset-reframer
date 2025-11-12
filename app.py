@@ -145,27 +145,10 @@ if generate_button and user_statement:
     with st.spinner("Thinking about this from different angles..."):
         
         try:
-            # Get API key
-            api_key = st.secrets["OPENAI_API_KEY"]
-            
-            # Show key info for debugging (first 7 and last 4 chars only)
-            st.info(f"🔑 Testing API key: {api_key[:7]}...{api_key[-4:]}")
-            
             # Initialize OpenAI client
-            client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
             
-            # Test API first
-            test_response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "user", "content": "Respond with exactly: API connection successful"}
-                ],
-                max_tokens=20
-            )
-            
-            st.success(f"✅ {test_response.choices[0].message.content}")
-            
-            # Now do the actual reframing
+            # Create the AI prompt
             prompt = f"""You are a thoughtful coach helping someone reframe a negative or draining thought into three different positive perspectives. The person said: "{user_statement}"
 
 Please provide three distinct reframes, each 1-2 sentences:
@@ -188,6 +171,7 @@ IMPORTANT:
 Respond with ONLY the three reframes, separated by | like this:
 [growth reframe]|[abundance reframe]|[get-to reframe]"""
 
+            # Call OpenAI API
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -224,33 +208,12 @@ Respond with ONLY the three reframes, separated by | like this:
                     file_name="mindset_reframes.txt"
                 )
             else:
+                # If format is unexpected, show what we got
                 st.markdown("<h3>Your Reframed Statements:</h3>", unsafe_allow_html=True)
                 st.markdown(f"<div class='reframe-box'>{ai_text}</div>", unsafe_allow_html=True)
 
         except Exception as e:
-            # Show the actual error
-            error_type = type(e).__name__
-            error_msg = str(e)
-            
-            st.error(f"❌ Error Type: {error_type}")
-            st.error(f"❌ Error Message: {error_msg}")
-            
-            # Specific error handling
-            if "authentication" in error_msg.lower() or "401" in error_msg:
-                st.warning("🔑 Your API key appears to be invalid. Please check:")
-                st.markdown("1. Go to https://platform.openai.com/api-keys")
-                st.markdown("2. Generate a new key")
-                st.markdown("3. Update your Streamlit secrets")
-            elif "rate_limit" in error_msg.lower() or "429" in error_msg:
-                st.warning("💳 You've hit your rate limit. Please check:")
-                st.markdown("1. Go to https://platform.openai.com/account/billing")
-                st.markdown("2. Make sure you have credits or a payment method")
-            elif "insufficient_quota" in error_msg.lower():
-                st.warning("💳 You're out of OpenAI credits. Please:")
-                st.markdown("1. Go to https://platform.openai.com/account/billing")
-                st.markdown("2. Add a payment method or purchase credits")
-            
-            st.info("⚠️ Using smart template reframing instead...")
+            st.warning("⚠️ AI service temporarily unavailable. Using smart template reframing...")
             
             # --- TEMPLATE FALLBACK ---
             original = user_statement.strip()
@@ -382,4 +345,4 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown(
     "<div class='footer'>© 2025 Institutional Property Advisors<br>ipausa.com</div>", 
     unsafe_allow_html=True
-    )
+)
