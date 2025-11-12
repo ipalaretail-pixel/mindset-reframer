@@ -1,5 +1,11 @@
 import streamlit as st
 import requests
+import openai
+openai.api_key = st.secrets["openai"]["api_key"]
+
+# Lock the model to GPT-3.5
+model = "gpt-3.5-turbo"
+assert model == "gpt-3.5-turbo", "Wrong model selected!"
 
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="Gratitude, Growth and Abundance – Reframe Your Mindset", page_icon=None, layout="centered")
